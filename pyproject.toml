@@ -6,11 +6,9 @@ authors = [
     {name = "Christoph Becker", email = "christoph.becker@exb.de"},
 ]
 dependencies = [
-    "pytube>=12.1.2",
-    "av>=10.0.0",
-    "spacy>=3.4.4",
     "pip>=22.3.1",
     "PyMuPDF>=1.21.1",
+    "loguru>=0.6.0",
 ]
 requires-python = ">=3.10"
 license = {text = "MIT"}
