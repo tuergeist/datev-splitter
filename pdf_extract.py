@@ -49,6 +49,7 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
         old_pn: str = INVALID_PN
         start_page: int = 1
         ignored = set(range(1, pdf_in.page_count + 1))
+        logger.debug(pdf_in.metadata)
         for pdf_page in pdf_in:
             page += 1
             logger.debug('--> Page %s --> ' % page)
