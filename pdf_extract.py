@@ -32,13 +32,23 @@ def save(infile: str, name: str, start_page: int, end_page: int):
         pdf.save(name, garbage=3, deflate=True)
 
 
-def identify_pages(infile: str, prefix: str = 'prefix'):
+def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str] = None):
     result = set()
-    ignored = set()
+
+    def add_to_result(name, start_page, page):
+        mark_used(start_page, page)
+        result.add((name, start_page, page - 1))
+
+    def mark_used(start, stop):
+        for p in range(start, stop):
+            logger.debug('mark page %s as used' % p)
+            ignored.remove(p)
+
     with fitz.open(infile) as pdf_in:
         page: int = 0
         old_pn: str = INVALID_PN
         start_page: int = 1
+        ignored = set(range(1, pdf_in.page_count + 1))
         for pdf_page in pdf_in:
             page += 1
             logger.debug('--> Page %s --> ' % page)
@@ -53,12 +63,13 @@ def identify_pages(infile: str, prefix: str = 'prefix'):
             if pn != old_pn:
                 if old_pn != INVALID_PN:
                     logger.debug('%s from %s to %s' % (name, start_page, page - 1))
-                    result.add((name, start_page, page - 1))
-                logger.debug("reset start page")
+                    add_to_result(name, start_page, page)
+                logger.debug(f"reset start page to {page} for {pn}")
                 start_page = page
                 name = get_name(prefix, pn, text)
             old_pn = pn
         logger.debug('%s from %s to %s' % (name, start_page, page))
+        mark_used(start_page, page + 1)
         result.add((name, start_page, page))
         return result, ignored
 
@@ -79,7 +90,7 @@ def _arg_parser(args: Optional[list] = None) -> argparse.Namespace:
     parser.add_argument('-p', '--prefix', type=str, help="Prefix for all result files")
     parser.add_argument('-o', '--output', type=str, default='',
                         help="Where to write the output files (path must exist)")
-    parser.add_argument('-e', '--export-pns', type=str, help='Export csv file with processed Personalnummern.')
+    parser.add_argument('-e', '--exportpns', type=str, help='Export csv file with processed Personalnummern.')
     args = parser.parse_args(args)
     logger.debug(args)
     return args
@@ -102,7 +113,7 @@ def main():
     args = _arg_parser()
     _setup_logger(args)
 
-    result, ignored = identify_pages(args.infile, args.prefix)
+    result, ignored = identify_pages(args.infile, args.prefix, args.exportpns)
     extract_pages(args.infile, args.output, result)
     logger.info(f"Ignored pages: {ignored}")
 
