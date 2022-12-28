@@ -1,6 +1,8 @@
+import argparse
 import os.path
 import re
 import sys
+from typing import Optional
 
 import fitz  # pip install PyMuPDF
 from loguru import logger
@@ -22,10 +24,6 @@ def get_name(prefix: str, old_pn: str, text: str) -> str:
     return f'{prefix}{old_pn}-{suffix}.pdf'
 
 
-infile = sys.argv[2]
-prefix = sys.argv[1]
-
-
 def save(infile: str, name: str, start_page: int, end_page: int):
     pages = list(range(start_page - 1, end_page))
     with fitz.open(infile) as pdf:
@@ -36,11 +34,11 @@ def save(infile: str, name: str, start_page: int, end_page: int):
 
 def identify_pages(infile: str, prefix: str = 'prefix'):
     result = set()
+    ignored = set()
     with fitz.open(infile) as pdf_in:
         page: int = 0
         old_pn: str = INVALID_PN
         start_page: int = 1
-        company: str = None
         for pdf_page in pdf_in:
             page += 1
             logger.debug('--> Page %s --> ' % page)
@@ -56,13 +54,13 @@ def identify_pages(infile: str, prefix: str = 'prefix'):
                 if old_pn != INVALID_PN:
                     logger.debug('%s from %s to %s' % (name, start_page, page - 1))
                     result.add((name, start_page, page - 1))
-
+                logger.debug("reset start page")
                 start_page = page
                 name = get_name(prefix, pn, text)
             old_pn = pn
         logger.debug('%s from %s to %s' % (name, start_page, page))
         result.add((name, start_page, page))
-        return result
+        return result, ignored
 
 
 def extract_pages(infile: str, dst_path: str, identify_set: set):
@@ -71,6 +69,43 @@ def extract_pages(infile: str, dst_path: str, identify_set: set):
         save(infile, os.path.join(dst_path, name), start, end)
 
 
-dst_path = 'tmp'
-result = identify_pages(infile, prefix)
-extract_pages(infile, dst_path, result)
+def _arg_parser(args: Optional[list] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('infile', metavar='infile', type=str,
+                        help='Datev file to process')
+    parser.add_argument('-q', '--quiet', action='store_true', help="Show only warnings and errors")
+    parser.add_argument('-d', '--debug', action='store_true', help="Show more context")
+    parser.add_argument('-t', '--trace', action='store_true', help="Show even more context / trace")
+    parser.add_argument('-p', '--prefix', type=str, help="Prefix for all result files")
+    parser.add_argument('-o', '--output', type=str, default='',
+                        help="Where to write the output files (path must exist)")
+    parser.add_argument('-e', '--export-pns', type=str, help='Export csv file with processed Personalnummern.')
+    args = parser.parse_args(args)
+    logger.debug(args)
+    return args
+
+
+def _setup_logger(args):
+    level = "INFO"
+    if args.trace:
+        level = "TRACE"
+    elif args.debug:
+        level = "DEBUG"
+    elif args.quiet:
+        level = "WARN"
+    logger.remove()
+    logger.add(sys.stdout, colorize=True, level=level)
+
+
+@logger.catch
+def main():
+    args = _arg_parser()
+    _setup_logger(args)
+
+    result, ignored = identify_pages(args.infile, args.prefix)
+    extract_pages(args.infile, args.output, result)
+    logger.info(f"Ignored pages: {ignored}")
+
+
+if __name__ == '__main__':
+    main()
