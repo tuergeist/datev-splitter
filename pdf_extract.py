@@ -34,7 +34,7 @@ def save(infile: str, name: str, start_page: int, end_page: int):
 
 def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str] = None):
     result = set()
-
+    pn_set: set = set()
     def add_to_result(name, start_page, page):
         mark_used(start_page, page)
         result.add((name, start_page, page - 1))
@@ -60,6 +60,7 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
                 pn = INVALID_PN
             else:
                 pn = r[0]
+                pn_set.add((f"{prefix}{pn}",pn))
 
             if pn != old_pn:
                 if old_pn != INVALID_PN:
@@ -72,6 +73,14 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
         logger.debug('%s from %s to %s' % (name, start_page, page))
         mark_used(start_page, page + 1)
         result.add((name, start_page, page))
+
+        if export_pns:
+            sorted_pns = sorted(pn_set)
+            import csv
+            with open(export_pns, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(sorted_pns)
+
         return result, ignored
 
 
