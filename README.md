@@ -41,10 +41,19 @@ Erstellt im Unterordner `tmp` alle Dateien mit dem prefix `PREFIX-`.
 D.h. Die Dateien heißen dann bspw.: `PREFIX-00203-2022-Dezember.pdf` für eine Lohnabrechnung Dezember 2022, 
 Personalnummer `00203`
 
-`-e pns.csv` Exportiert die Personalnummern mit und ohne Prefix. Mit dem Prefix `RD-` sieht das Ergebnis bspw so aus:
+`-e pns.csv` Exportiert die Personalnummern mit und ohne Prefix und den gefundenen Namen.
+Mit dem Prefix `RD-` sieht das Ergebnis bspw so aus:
 
 ```csv
-RD-00004,00004
-RD-00006,00006
-RD-00014,00014
+RD-00004,00004,vorname name
+RD-00006,00006,vorname2 name2
+RD-00014,00014,vorname3 name3
 ```
+
+## Welche Seiten werden exportiert?
+
+- Praktisch alle auf denen eine Personalnummer zu finden ist
+
+![Lohnabrechnungen](/docs/datev-abrechnung.png)
+![Lohnsteuerbescheinigungnen](/docs/datev-lohnsteuerbescheinigung.png)
+![Meldebescheinigungen](/docs/datev-meldebescheinigung.png)

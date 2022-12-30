@@ -31,6 +31,17 @@ def save(infile: str, name: str, start_page: int, end_page: int):
         logger.info(f"Saving {name} with pages {pages}")
         pdf.save(name, garbage=3, deflate=True)
 
+def get_personal_name(text: str):
+    splitted = text.split('\n')
+    found = False
+    for line in splitted:
+        if re.findall('Pers\.-Nr\. ([0-9]{5})', line):
+            found = True
+            continue
+        if found:  # next line is the name
+            logger.info(line)
+            return line
+    return
 
 def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str] = None):
     result = set()
@@ -55,24 +66,25 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
             logger.debug('--> Page %s --> ' % page)
             text = pdf_page.get_text()
             r = re.findall('Pers\.-Nr\. ([0-9]{5})', text)
+            personal_name = get_personal_name(text)
             if len(r) == 0:
                 logger.trace(text)
                 pn = INVALID_PN
             else:
                 pn = r[0]
-                pn_set.add((f"{prefix}{pn}",pn))
+                pn_set.add((f"{prefix}{pn}",pn,personal_name))
 
             if pn != old_pn:
                 if old_pn != INVALID_PN:
-                    logger.debug('%s from %s to %s' % (name, start_page, page - 1))
-                    add_to_result(name, start_page, page)
+                    logger.debug('%s from %s to %s' % (file_name, start_page, page - 1))
+                    add_to_result(file_name, start_page, page)
                 logger.debug(f"reset start page to {page} for {pn}")
                 start_page = page
-                name = get_name(prefix, pn, text)
+                file_name = get_name(prefix, pn, text)
             old_pn = pn
-        logger.debug('%s from %s to %s' % (name, start_page, page))
+        logger.debug('%s from %s to %s' % (file_name, start_page, page))
         mark_used(start_page, page + 1)
-        result.add((name, start_page, page))
+        result.add((file_name, start_page, page))
 
         if export_pns:
             sorted_pns = sorted(pn_set)
