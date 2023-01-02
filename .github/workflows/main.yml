@@ -23,8 +23,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
+          path: ~/.venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -48,6 +48,10 @@ jobs:
     - run: git checkout main
 #    - name: Fetch main
 #      run: git fetch --prune origin +refs/heads/main:refs/remotes/origin/main
+    - name: Install dependencies
+      run: |
+        pip install --user pdm
+        pdm install -G :all
     - name: Semantic Release
       uses: relekang/python-semantic-release@master
       with:
