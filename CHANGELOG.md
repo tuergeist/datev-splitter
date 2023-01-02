@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.1 (2023-01-02)
+### Fix
+* Add pdm ([`05a329a`](https://github.com/tuergeist/datev-splitter/commit/05a329ad9cca7983c0650178302b1b2f94d7c464))
+
 ## v0.1.0 (2023-01-02)
 ### Feature
 * Added as pdm python script datev_splitr ([`3e9ab77`](https://github.com/tuergeist/datev-splitter/commit/3e9ab77b2f7712054315181e57fad051fb04fc5a))
