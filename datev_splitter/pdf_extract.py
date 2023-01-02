@@ -1,11 +1,11 @@
-import argparse
 import os.path
 import re
-import sys
 from typing import Optional
 
 import fitz  # pip install PyMuPDF
 from loguru import logger
+
+PERSONAL_NR_PATTERN = r'Pers\.-Nr\. ([0-9]{5})'
 
 INVALID_PN = 'X'
 
@@ -31,11 +31,12 @@ def save(infile: str, name: str, start_page: int, end_page: int):
         logger.info(f"Saving {name} with pages {pages}")
         pdf.save(name, garbage=3, deflate=True)
 
+
 def get_personal_name(text: str):
     splitted = text.split('\n')
     found = False
     for line in splitted:
-        if re.findall('Pers\.-Nr\. ([0-9]{5})', line):
+        if re.findall(PERSONAL_NR_PATTERN, line):
             found = True
             continue
         if found:  # next line is the name
@@ -43,9 +44,11 @@ def get_personal_name(text: str):
             return line
     return
 
+
 def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str] = None):
     result = set()
     pn_set: set = set()
+
     def add_to_result(name, start_page, page):
         mark_used(start_page, page)
         result.add((name, start_page, page - 1))
@@ -62,17 +65,18 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
         ignored = set(range(1, pdf_in.page_count + 1))
         logger.debug(pdf_in.metadata)
         for pdf_page in pdf_in:
+            file_name: str = "unknown_yet"
             page += 1
             logger.debug('--> Page %s --> ' % page)
             text = pdf_page.get_text()
-            r = re.findall('Pers\.-Nr\. ([0-9]{5})', text)
+            r = re.findall(PERSONAL_NR_PATTERN, text)
             personal_name = get_personal_name(text)
             if len(r) == 0:
                 logger.trace(text)
                 pn = INVALID_PN
             else:
                 pn = r[0]
-                pn_set.add((f"{prefix}{pn}",pn,personal_name))
+                pn_set.add((f"{prefix}{pn}", pn, personal_name))
 
             if pn != old_pn:
                 if old_pn != INVALID_PN:
@@ -100,4 +104,3 @@ def extract_pages(infile: str, dst_path: str, identify_set: set):
     for entry in identify_set:
         name, start, end = entry
         save(infile, os.path.join(dst_path, name), start, end)
-

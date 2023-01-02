@@ -9,6 +9,7 @@ dependencies = [
     "pip>=22.3.1",
     "PyMuPDF>=1.21.1",
     "loguru>=0.6.0",
+    "flake8>=6.0.0",
 ]
 requires-python = ">=3.10"
 license = {text = "MIT"}
