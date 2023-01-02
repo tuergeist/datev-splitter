@@ -54,7 +54,7 @@ jobs:
         pdm install -G :all --dev --no-lock --no-editable
         which pdm
     - name: Semantic Release
-      uses: relekang/python-semantic-release@master
+      run: pdm run semantic-release publish
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository_username: __token__
