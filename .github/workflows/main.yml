@@ -51,7 +51,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --user pdm
-        pdm install -G :all
+        pdm install -G :all --dev --no-lock --no-editable
+        which pdm
     - name: Semantic Release
       uses: relekang/python-semantic-release@master
       with:
