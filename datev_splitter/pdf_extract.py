@@ -10,6 +10,15 @@ PERSONAL_NR_PATTERN = r'Pers\.-Nr\. ([0-9]{5})'
 INVALID_PN = 'X'
 
 
+def get_pn(text):
+    r = re.findall(PERSONAL_NR_PATTERN, text)
+    if len(r) == 0:
+        logger.trace(text)
+        pn = INVALID_PN
+    else:
+        pn = r[0]
+    return pn
+
 def get_name(prefix: str, old_pn: str, text: str) -> str:
     suffix = ""
     lst = re.findall('(Lohnsteuerbescheinigung) für ([0-9]{4})', text)
@@ -69,13 +78,10 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
             page += 1
             logger.debug('--> Page %s --> ' % page)
             text = pdf_page.get_text()
-            r = re.findall(PERSONAL_NR_PATTERN, text)
             personal_name = get_personal_name(text)
-            if len(r) == 0:
-                logger.trace(text)
-                pn = INVALID_PN
-            else:
-                pn = r[0]
+
+            pn = get_pn(text)
+            if pn != INVALID_PN:
                 pn_set.add((f"{prefix}{pn}", pn, personal_name))
 
             if pn != old_pn:
@@ -85,7 +91,9 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
                 logger.debug(f"reset start page to {page} for {pn}")
                 start_page = page
                 file_name = get_name(prefix, pn, text)
+
             old_pn = pn
+
         logger.debug('%s from %s to %s' % (file_name, start_page, page))
         mark_used(start_page, page + 1)
         result.add((file_name, start_page, page))
@@ -98,6 +106,7 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
                 writer.writerows(sorted_pns)
 
         return result, ignored
+
 
 
 def extract_pages(infile: str, dst_path: str, identify_set: set):
