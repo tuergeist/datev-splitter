@@ -15,7 +15,7 @@ zusammenhängende Seiten zu einer Personalnummer werden auch zusammen exportiert
 ## Benutzung
 
 ```bash
-usage: pdf_extract.py [-h] [-q] [-d] [-t] [-p PREFIX] [-o OUTPUT] [-e EXPORT_PNS] infile
+usage: datev_splitr [-h] [-q] [-d] [-t] [-p PREFIX] [-o OUTPUT] [-e EXPORT_PNS] infile
 
 positional arguments:
   infile                Datev file to process
@@ -34,6 +34,10 @@ options:
 ```
 
 ### Beispiel
+
+`datev_splitr -p PREFIX- -o tmp -d auswertungen.pdf`
+
+oder in der Entwicklungsumgebung
 
 `pdm run python pdf_extract.py -p PREFIX- -o tmp -d auswertungen.pdf`
 

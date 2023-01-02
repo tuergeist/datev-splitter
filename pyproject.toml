@@ -1,6 +1,6 @@
 [project]
-name = ""
-version = ""
+name = "Datev-Splitter"
+version = "Splits Datev-Reports into single pdf files per Personalnummer."
 description = ""
 authors = [
     {name = "Christoph Becker", email = "christoph.becker@exb.de"},
@@ -12,6 +12,11 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 license = {text = "MIT"}
+
+
+[project.scripts]
+datev_splitr = "datev_splitter:datev_split"
+
 
 [build-system]
 requires = ["pdm-pep517>=1.0.0"]
