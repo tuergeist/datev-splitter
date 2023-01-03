@@ -54,7 +54,10 @@ jobs:
         pdm install -G :all --dev --no-lock --no-editable
         which pdm
     - name: Semantic Release
-      run: pdm run semantic-release publish
+      run: |
+        git config user.email "mail@ch-becker.de"
+        git config user.name "Christoph via pipeline"
+        pdm run semantic-release publish
       env:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository_username: __token__
