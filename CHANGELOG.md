@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2023-01-03)
+### Fix
+* Name in result was unset ([`5b9728e`](https://github.com/tuergeist/datev-splitter/commit/5b9728e7f177d4e77ddc0a7cf4b9a77fbe464471))
+
 ## v0.3.0 (2023-01-03)
 
 
