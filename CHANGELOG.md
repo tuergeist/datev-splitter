@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.4 (2023-01-03)
+### Fix
+* Pdm config ([`b3eddc4`](https://github.com/tuergeist/datev-splitter/commit/b3eddc4d7a9d8a3c4f52554f066389a34a7478f7))
+
 ## v0.1.3 (2023-01-03)
 ### Fix
 * Semantic upload ([`d12aae6`](https://github.com/tuergeist/datev-splitter/commit/d12aae613363753e3b8d34e839d1bd7b872236fc))
