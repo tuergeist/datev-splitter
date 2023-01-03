@@ -73,8 +73,8 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
         start_page: int = 1
         ignored = set(range(1, pdf_in.page_count + 1))
         logger.debug(pdf_in.metadata)
+        file_name: str = "unknown_yet"
         for pdf_page in pdf_in:
-            file_name: str = "unknown_yet"
             page += 1
             logger.debug('--> Page %s --> ' % page)
             text = pdf_page.get_text()
@@ -88,6 +88,7 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
                 if old_pn != INVALID_PN:
                     logger.debug('%s from %s to %s' % (file_name, start_page, page - 1))
                     add_to_result(file_name, start_page, page)
+                    file_name: str = "unknown_yet"
                 logger.debug(f"reset start page to {page} for {pn}")
                 start_page = page
                 file_name = get_name(prefix, pn, text)
