@@ -1,0 +1,7 @@
+*.pdf
+.idea
+*/**/.pytest_cache
+__pypackages__
+.pdm.toml
+build/
+dist/
