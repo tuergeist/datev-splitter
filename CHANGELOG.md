@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.2 (2023-01-03)
+### Fix
+* Repo env upper case ([`371301f`](https://github.com/tuergeist/datev-splitter/commit/371301f2b2cf3a9057df2c9f9a12b32aadaeef44))
+
 ## v0.3.1 (2023-01-03)
 ### Fix
 * Name in result was unset ([`5b9728e`](https://github.com/tuergeist/datev-splitter/commit/5b9728e7f177d4e77ddc0a7cf4b9a77fbe464471))
