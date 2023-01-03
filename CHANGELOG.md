@@ -2,6 +2,9 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2023-01-03)
+
+
 ## v0.1.4 (2023-01-03)
 ### Fix
 * Pdm config ([`b3eddc4`](https://github.com/tuergeist/datev-splitter/commit/b3eddc4d7a9d8a3c4f52554f066389a34a7478f7))
