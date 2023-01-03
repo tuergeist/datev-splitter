@@ -60,5 +60,5 @@ jobs:
         pdm run semantic-release publish
       env:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository_username: __token__
-        repository_password: ${{ secrets.REPOSITORY_PASSWORD }}
+        REPOSITORY_USERNAME: __token__
+        REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
