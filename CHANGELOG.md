@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2023-01-11)
+### Feature
+* Return list of skipped pdf pages ([`1ca02d3`](https://github.com/tuergeist/datev-splitter/commit/1ca02d3e6f058c309caba6802e2a1eee531f8a47))
+
 ## v0.3.2 (2023-01-03)
 ### Fix
 * Repo env upper case ([`371301f`](https://github.com/tuergeist/datev-splitter/commit/371301f2b2cf3a9057df2c9f9a12b32aadaeef44))
