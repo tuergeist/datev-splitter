@@ -19,6 +19,7 @@ def get_pn(text):
         pn = r[0]
     return pn
 
+
 def get_name(prefix: str, old_pn: str, text: str) -> str:
     suffix = ""
     lst = re.findall('(Lohnsteuerbescheinigung) für ([0-9]{4})', text)
@@ -109,8 +110,14 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
         return result, ignored
 
 
-
 def extract_pages(infile: str, dst_path: str, identify_set: set):
+    skipped = []
     for entry in identify_set:
         name, start, end = entry
-        save(infile, os.path.join(dst_path, name), start, end)
+        logger.debug(f"Saving {name}")
+        if f"{INVALID_PN}-" in name:  # thats what the datev splitter adds for unknon PNs
+            logger.info(f"Skip saving {name} from page {start} to {end} ")
+            skipped.append(entry)
+        else:
+            save(infile, os.path.join(dst_path, name), start, end)
+    return skipped
