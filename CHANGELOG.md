@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-04-12)
+### Feature
+* Add date to Meldebescheinigungen ([`dd555ea`](https://github.com/tuergeist/datev-splitter/commit/dd555ea25194cd1d96c89cb32cac50ca7342e0a3))
+
+### Fix
+* Tests respect module dir ([`1cca1e2`](https://github.com/tuergeist/datev-splitter/commit/1cca1e2f2665998ec70211224183d9ec46edabf4))
+* Rm .pdm.toml ([`48206bc`](https://github.com/tuergeist/datev-splitter/commit/48206bc86a1b70434f679a3ea3a507632157c479))
+
 ## v0.4.0 (2023-01-11)
 ### Feature
 * Return list of skipped pdf pages ([`1ca02d3`](https://github.com/tuergeist/datev-splitter/commit/1ca02d3e6f058c309caba6802e2a1eee531f8a47))
