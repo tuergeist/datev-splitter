@@ -1,4 +1,9 @@
+import re
+
+import pytest
+
 from datev_splitter.pdf_extract import get_pn, INVALID_PN
+from pdf_extract import get_name, FormNr
 
 
 def test_get_pn_invalid():
@@ -10,39 +15,46 @@ def test_get_pn():
     text = "*Pers.-Nr. 00222*"
     assert get_pn(text) == "00222"
 
-    text = """Abrechnung der Brutto/Netto-Bezüge für Dezember 2022
-Personal-Nr.Freibetrag jährl.
-Geburtsdatum StKl Faktor
-Ki.Frbtr. Konfession
-00222 010189 4
-SV-Nummer
-1
-1 DBA
-Freibetrag mtl.
-MidijobSt.-Tg.
-BGRSUm. SV-Tg.
-20
-124452/10101/222
-22.12.2022 Blatt: 1
-VJ Url. üb.Url. Anspr.Url.Tg.gen.Resturlaub
-Anw. TageUrlaub TageKrankh. Tg.Fehlz. Tage
-Anw. Std.Urlaub Std.Krankh. Std.Fehlz. Std.
-30
-KK % 8 PGRS
-Krankenkasse
-321321321 AOK Plus
-1580101 1111 2 30
-Eintritt
-Austritt
-011022
-Steuer-ID
-B/N
-83I
-*Pers.-Nr. 00213*
-MFB 7
-Zeitlohn Std. Überstd.
-Bez. Std.
-21221
-Eine GmbH*St.-Martin-Str. 0*88888 München
-Hinweise zur Abrechnung"""
-    assert get_pn(text) == '00213'
+
+def test_get_pn_2022_12(text_2022_12):
+    assert get_pn(text_2022_12) == '00213'
+
+
+def test_name_2022_12(text_2022_12):
+    name = get_name("RD", "00000", text_2022_12)
+    assert name == "RD00000-2022-Dezember.pdf"
+
+
+def test_name_2023_03_umlaut(text_2023_03):
+    name = get_name("", "", text_2023_03)
+    assert name == "-2023-Maerz.pdf"
+
+
+def test_form_nr():
+    melde: str = 'LOMS04'
+    form = FormNr(melde)
+    assert form == FormNr.Meldebescheinigung
+
+    with pytest.raises(ValueError):
+        FormNr('foobar')
+
+
+def test_afp_form_nr():
+    text = '''Dezember 2022
+AFP Form.-Nr. LOGN15
+Personal-Nr.Freibetrag ja'''
+    res = re.findall('AFP Form.-Nr. ([A-Z]{2}\w{4})', text)
+    assert res
+    assert res[0] == 'LOGN15'
+
+
+def test_meldedatum():
+    text = """124444/10000/00011
+                                                                             17.03.2023
+                                                                                      1
+                                                 00001         17.03.2023 / 12:38
+                                                 12345696S565
+"""
+    datum = re.findall('((0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.(20[0-9]{2}))', text)
+    assert datum == [('17.03.2023', '17', '03', '2023'), ('17.03.2023', '17', '03', '2023')]
+    assert datum[0][0] == '17.03.2023'

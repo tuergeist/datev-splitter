@@ -1,5 +1,6 @@
 import os.path
 import re
+from enum import Enum
 from typing import Optional
 
 import fitz  # pip install PyMuPDF
@@ -20,17 +21,46 @@ def get_pn(text):
     return pn
 
 
-def get_name(prefix: str, old_pn: str, text: str) -> str:
-    suffix = ""
-    lst = re.findall('(Lohnsteuerbescheinigung) für ([0-9]{4})', text)
-    title = re.findall('für ([A-Z]{1}[a-z]+) (20[0-9]{2})', text)
-    mb = re.findall('Meldebescheinigung', text)
-    if len(title) > 0:
-        suffix = "-".join(list(reversed(title[0])))
-    elif len(lst) > 0:
-        suffix = "-".join(list(reversed(lst[0])))
-    elif len(mb) > 0:
-        suffix = mb[0]
+class FormNr(Enum):
+    Abrechnung = 'LOGN15'
+    AbrechnungswertePruefung = 'LOAP10'
+    Begleitdaten = 'LOA104'  # Begleitzettel, Mandatendaten etc
+    Lohnsteuerbescheinigung = 'LO4723'
+    Meldebescheinigung = 'LOMS04'
+    SVJahresarbeitsentgelt = 'LOJE11'
+    Ueberweisungsprotokoll = 'LOA203'
+
+    Unkown = 'UKNOWN'
+
+
+def get_form_nr(text: str) -> FormNr:
+    form = re.findall(r'AFP Form.-Nr. ([A-Z]{2}\w{4})', text)
+    try:
+        return FormNr(form[0])
+    except IndexError:
+        logger.error(f"No Form Nr found in text >>> '{text}' <<<")
+    except ValueError:
+        logger.error(f"Unknown Form Nr. '{form}'")
+    return FormNr.Unkown
+
+
+def get_name(prefix: str, old_pn: str, _text: str) -> str | None:
+    text = _text.replace('ä', 'ae')
+    form: FormNr = get_form_nr(text)
+
+    match form:
+        case FormNr.Abrechnung:
+            title = re.findall('für ([A-Z]{1}[a-z]+) (20[0-9]{2})', text)
+            suffix = "-".join(list(reversed(title[0])))
+        case FormNr.Lohnsteuerbescheinigung:
+            lst = re.findall('(Lohnsteuerbescheinigung) für ([0-9]{4})', text)
+            suffix = "-".join(list(reversed(lst[0])))
+        case FormNr.Meldebescheinigung:
+            mb = re.findall('Meldebescheinigung', text)
+            datum = re.findall(r'((0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.(20[0-9]{2}))', text)
+            suffix = mb[0] + "-" + datum[0][0]
+        case _:
+            return None
     return f'{prefix}{old_pn}-{suffix}.pdf'
 
 
@@ -98,7 +128,8 @@ def identify_pages(infile: str, prefix: str = 'prefix', export_pns: Optional[str
 
         logger.debug('%s from %s to %s' % (file_name, start_page, page))
         mark_used(start_page, page + 1)
-        result.add((file_name, start_page, page))
+        if file_name:
+            result.add((file_name, start_page, page))
 
         if export_pns:
             sorted_pns = sorted(pn_set)
@@ -115,7 +146,10 @@ def extract_pages(infile: str, dst_path: str, identify_set: set):
     for entry in identify_set:
         name, start, end = entry
         logger.debug(f"Saving {name}")
-        if f"{INVALID_PN}-" in name:  # thats what the datev splitter adds for unknon PNs
+        if name is None:
+            logger.info(f"Skipping page {start} to {end} for a nameless file")
+            skipped.append(entry)
+        elif f"{INVALID_PN}-" in name:  # thats what the datev splitter adds for unknon PNs
             logger.info(f"Skip saving {name} from page {start} to {end} ")
             skipped.append(entry)
         else:
