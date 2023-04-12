@@ -2,8 +2,7 @@ import re
 
 import pytest
 
-from datev_splitter.pdf_extract import get_pn, INVALID_PN
-from pdf_extract import get_name, FormNr
+from datev_splitter.pdf_extract import get_pn, INVALID_PN, get_name, FormNr
 
 
 def test_get_pn_invalid():
